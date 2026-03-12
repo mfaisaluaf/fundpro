@@ -1,0 +1,579 @@
+/* Admin Page Styles */
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Save bar — shown when there are unsaved changes */
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: #92400e;
+}
+
+.save-bar span {
+  flex: 1;
+}
+
+.save-btn {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background: #059669;
+}
+
+.cancel-btn-sm {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.cancel-btn-sm:hover {
+  background: #f1f5f9;
+}
+
+/* Tabs */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  padding: 10px 24px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.tab-btn.active {
+  background: #10B981;
+  color: white;
+}
+
+/* Error */
+.admin-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Section */
+.admin-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.admin-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.section-desc {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 0 0 20px 0;
+}
+
+/* Add Form */
+.add-form {
+  margin-bottom: 24px;
+}
+
+.add-form .form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.add-form input,
+.add-form select {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex: 1;
+  min-width: 150px;
+}
+
+.add-form input:focus,
+.add-form select:focus {
+  outline: none;
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.add-form .add-btn {
+  padding: 10px 20px;
+  background: #10B981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-form .add-btn:hover {
+  background: #059669;
+}
+
+/* Data Table */
+.data-table {
+  overflow-x: auto;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  background: #f8fafb;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.data-table tbody tr:hover {
+  background: #f8fafb;
+}
+
+.data-table .type-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.data-table .type-badge.employee {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.data-table .type-badge.vendor {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.data-table .type-badge.other {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.data-table .type-badge.expense {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.data-table .type-badge.income {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.data-table .type-badge.transfer {
+  background: #faf5ff;
+  color: #7c3aed;
+}
+
+.data-table .type-badge.settlement {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* Loading & No Data */
+.loading,
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+/* Settings */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.setting-item input {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: #f8fafb;
+}
+
+.setting-item input:disabled {
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Action Buttons */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.action-btn.edit:hover {
+  background: #eff6ff;
+}
+
+.action-btn.delete:hover {
+  background: #fef2f2;
+}
+
+.action-btn.save {
+  background: #10B981;
+  color: white;
+  font-weight: 600;
+}
+
+.action-btn.cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Inline Edit */
+.inline-edit {
+  padding: 4px 8px;
+  border: 1px solid #10B981;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  width: auto;
+}
+
+/* Sub-category styling */
+.sub-category {
+  background: #f8fafb;
+}
+
+.sub-category td:first-child {
+  padding-left: 32px;
+}
+
+.indent {
+  color: #10B981;
+  font-weight: 600;
+}
+
+/* Type badge for both */
+.data-table .type-badge.both {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Search Box */
+.search-box {
+  margin-bottom: 16px;
+}
+
+.search-box input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Parent Category Row */
+.parent-category {
+  background: #f8fafb;
+}
+
+.parent-category td {
+  font-weight: 500;
+}
+
+.child-count {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: normal;
+}
+
+/* Success Message */
+.admin-success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #059669;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+/* Add Mode Toggle (Main/Sub Category) */
+.add-mode-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.mode-btn {
+  padding: 6px 16px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.mode-btn.active {
+  background: #10B981;
+  color: white;
+  border-color: #10B981;
+}
+
+/* Settings Sections */
+.settings-section {
+  margin-bottom: 28px;
+}
+
+.settings-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.settings-section p {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin: 0 0 12px 0;
+}
+
+/* Dashboard Card Toggles */
+.card-toggles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.card-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f8fafb;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-toggle:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.card-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #10B981;
+  cursor: pointer;
+}
+
+.card-toggle span {
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+/* Workspace label in settings */
+.workspace-label {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.workspace-label.office {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.workspace-label.personal {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.workspace-label.treat {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Type badge for family/friend */
+.data-table .type-badge.family {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.data-table .type-badge.friend {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+/* Fund balance colors */
+.amount-positive {
+  color: #059669;
+  font-weight: 600;
+}
+
+.amount-negative {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Fund location breakdown */
+.fund-location-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fund-loc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+.fund-loc-name {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fund-loc-amount {
+  font-weight: 600;
+}
+
+.fund-loc-amount.positive {
+  color: #059669;
+}
+
+.fund-loc-amount.negative {
+  color: #dc2626;
+}
+
+/* Code style for abbreviations */
+.data-table code {
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #1e293b;
+}

@@ -1,0 +1,23 @@
+/* App.css - Minimal styles (main styles in MainLayout.css) */
+
+/* Page base styling for non-dashboard pages */
+.page {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.page h1 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #1e293b;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.page p {
+  color: #64748b;
+  margin: 0;
+}

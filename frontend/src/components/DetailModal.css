@@ -1,0 +1,142 @@
+.detail-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.detail-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.detail-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.detail-icon {
+  font-size: 1.5rem;
+}
+
+.detail-modal-title h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.detail-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.detail-close-btn:hover {
+  color: #1f2937;
+}
+
+.detail-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-total span {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.detail-total .total-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.detail-transactions {
+  overflow-y: auto;
+  padding: 1rem 1.5rem;
+  flex: 1;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table th {
+  text-align: left;
+  padding: 0.75rem 0.5rem;
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.detail-table tr:last-child td {
+  border-bottom: none;
+}
+
+.detail-table .date-cell {
+  white-space: nowrap;
+  color: #6b7280;
+}
+
+.detail-table .desc-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-table .person-cell {
+  color: #6b7280;
+}
+
+.detail-table .amount-cell {
+  text-align: right;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.no-transactions {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}

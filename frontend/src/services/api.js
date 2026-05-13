@@ -3,7 +3,7 @@
  * Handles all communication with the backend
  */
 
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = 'https://fundpro-7vcv.vercel.app/api'
 
 // Helper function for API calls
 async function fetchAPI(endpoint, options = {}) {

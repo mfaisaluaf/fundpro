@@ -308,7 +308,7 @@
 /* ============================================
    RESPONSIVE
    ============================================ */
-@media (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   .sidebar {
     width: 70px;
   }
@@ -346,6 +346,61 @@
   }
 }
 
+/* ── Hamburger & sidebar-close (hidden by default) ─── */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hamburger-btn span {
+  display: block;
+  height: 2px;
+  background: #1e293b;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.hamburger-btn:hover span {
+  background: #10B981;
+}
+
+.sidebar-close-btn {
+  display: none;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.sidebar-close-btn:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 199;
+}
+
 @media (max-width: 768px) {
   .workspace-btn span:not(:first-child) {
     display: none;
@@ -353,5 +408,68 @@
 
   .user-name {
     display: none;
+  }
+
+  /* Show hamburger */
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Sidebar slides in from left */
+  .sidebar {
+    width: 240px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 200;
+  }
+
+  .sidebar.sidebar-mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Logo area when mobile sidebar open */
+  .sidebar .logo .logo-text {
+    display: block;
+  }
+
+  .sidebar .nav-section-label,
+  .sidebar .nav-label {
+    display: block;
+  }
+
+  .sidebar .nav-item {
+    justify-content: flex-start;
+    padding: 12px 16px;
+  }
+
+  .sidebar .nav-icon {
+    font-size: 1.1rem;
+  }
+
+  /* Main wrapper fills full width */
+  .main-wrapper {
+    margin-left: 0;
+  }
+
+  .top-header {
+    padding: 12px 16px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  /* Compact workspace buttons on mobile */
+  .workspace-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 }

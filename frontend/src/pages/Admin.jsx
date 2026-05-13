@@ -12,6 +12,7 @@ import {
   getSettings, updateSetting, resetWorkspace
 } from '../services/api'
 import PasswordConfirmModal from '../components/PasswordConfirmModal'
+import { getCards, getCustom, setWorkspace } from '../services/dashboardConfig'
 import './Admin.css'
 
 // Built-in system cards per workspace (all available cards per workspace)
@@ -423,13 +424,13 @@ function Admin() {
 
   // ---- DASHBOARD CONFIG HANDLERS ----
   function handleToggleCard(cardKey) {
-    const ws = workspace
     const baseConfig = pendingDashboardConfig || dashboardConfig
-    const current = baseConfig[ws] || []
-    const updated = current.includes(cardKey)
-      ? current.filter(k => k !== cardKey)
-      : [...current, cardKey]
-    setPendingDashboardConfig({ ...baseConfig, [ws]: updated })
+    const currentCards = getCards(baseConfig, workspace)
+    const currentCustom = getCustom(baseConfig, workspace)
+    const updatedCards = currentCards.includes(cardKey)
+      ? currentCards.filter(k => k !== cardKey)
+      : [...currentCards, cardKey]
+    setPendingDashboardConfig(setWorkspace(baseConfig, workspace, updatedCards, currentCustom))
   }
 
   async function handleSaveDashboardConfig() {
@@ -1096,7 +1097,7 @@ function Admin() {
             <h4 style={{ fontSize: '0.85rem', color: '#64748b', margin: '12px 0 8px', fontWeight: 500 }}>System Cards</h4>
             <div className="card-toggles">
               {(BUILTIN_CARDS[workspace] || []).map(card => {
-                const enabled = ((pendingDashboardConfig || dashboardConfig)[workspace] || []).includes(card.key)
+                const enabled = getCards(pendingDashboardConfig || dashboardConfig, workspace).includes(card.key)
                 return (
                   <label key={card.key} className="card-toggle">
                     <input
@@ -1115,7 +1116,7 @@ function Admin() {
             <div className="card-toggles">
               {parentCategories.map(cat => {
                 const cardKey = `cat:${cat.name}`
-                const enabled = ((pendingDashboardConfig || dashboardConfig)[workspace] || []).includes(cardKey)
+                const enabled = getCards(pendingDashboardConfig || dashboardConfig, workspace).includes(cardKey)
                 return (
                   <label key={cardKey} className="card-toggle">
                     <input

@@ -5,8 +5,11 @@ import {
   PieChart, Pie, Cell
 } from 'recharts'
 import { getDashboard, getTransactionsByCategory, getDashboardConfig, updateDashboardConfig, getFundsWithLocations } from '../services/api'
+import { getCards, getCustom, setWorkspace } from '../services/dashboardConfig'
 import AddTransactionModal from '../components/AddTransactionModal'
-import DetailModal from '../components/DetailModal'
+import DetailModal, { buildReceiptText } from '../components/DetailModal'
+import { ShareIcon, CheckIcon } from '../components/icons'
+import { showToast } from '../components/toast'
 import './Dashboard.css'
 
 // Chart colors
@@ -34,6 +37,56 @@ const formatDate = (dateStr) => {
   return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
+// Standalone recent-transactions table with per-row share
+function RecentTransactionsTable({ transactions }) {
+  const [shared, setShared] = useState(null)
+
+  function handleShare(txn, e) {
+    e.stopPropagation()
+    const text = buildReceiptText(txn)
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('✓ Receipt copied to clipboard'))
+      .catch(() => showToast('Could not copy — try again', 'error'))
+    setShared(txn.id)
+    setTimeout(() => setShared(null), 2000)
+  }
+
+  return (
+    <table className="transactions-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Via</th>
+          <th>Amount</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {transactions.map((txn) => (
+          <tr key={txn.id}>
+            <td className="date-cell">{formatDate(txn.date)}</td>
+            <td><span className="category-badge">{txn.category_name || 'Uncategorized'}</span></td>
+            <td className="desc-cell">{txn.description}</td>
+            <td className="via-cell">{formatVia(txn.payment_method)}</td>
+            <td className="amount-cell">{formatCurrency(txn.amount)}</td>
+            <td className="share-cell">
+              <button
+                className={`txn-share-btn ${shared === txn.id ? 'done' : ''}`}
+                onClick={(e) => handleShare(txn, e)}
+                title="Share receipt"
+              >
+                {shared === txn.id ? <CheckIcon size={13} /> : <ShareIcon size={13} />}
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 function Dashboard() {
   const { workspace } = useOutletContext()
   const [data, setData] = useState(null)
@@ -42,6 +95,9 @@ function Dashboard() {
   const [showModal, setShowModal] = useState(false)
   const [detailModal, setDetailModal] = useState({ isOpen: false, title: '', icon: '', transactions: [], total: 0 })
   const [fridayHistoryOpen, setFridayHistoryOpen] = useState(false)
+  const [fridayPos, setFridayPos] = useState(null)
+  const fridayDragRef = useRef({ dragging: false, startX: 0, startY: 0, origX: 0, origY: 0 })
+  const fridayModalRef = useRef(null)
   const [visibleCards, setVisibleCards] = useState(null) // null = show all (config not loaded yet)
   const [fundsLocations, setFundsLocations] = useState([])
 
@@ -87,12 +143,37 @@ function Dashboard() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  // Friday modal drag
+  useEffect(() => {
+    function onMouseMove(e) {
+      if (!fridayDragRef.current.dragging) return
+      const dx = e.clientX - fridayDragRef.current.startX
+      const dy = e.clientY - fridayDragRef.current.startY
+      setFridayPos({ x: fridayDragRef.current.origX + dx, y: fridayDragRef.current.origY + dy })
+    }
+    function onMouseUp() { fridayDragRef.current.dragging = false }
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
+  function handleFridayHeaderMouseDown(e) {
+    if (e.button !== 0) return
+    const rect = fridayModalRef.current.getBoundingClientRect()
+    fridayDragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, origX: rect.left, origY: rect.top }
+    setFridayPos({ x: rect.left, y: rect.top })
+    e.preventDefault()
+  }
+
   // Save card order + customizations to config
   const saveCardConfig = useCallback(async (newOrder, newCustom) => {
     try {
       const config = await getDashboardConfig()
-      config[workspace] = { cards: newOrder, custom: newCustom ?? cardCustom }
-      await updateDashboardConfig(config)
+      const updated = setWorkspace(config, workspace, newOrder, newCustom ?? cardCustom)
+      await updateDashboardConfig(updated)
       setVisibleCards(newOrder)
       if (newCustom !== undefined) setCardCustom(newCustom)
     } catch (err) {
@@ -179,13 +260,28 @@ function Dashboard() {
     setCardSettingsKey(null)
   }
 
-  // Wrap a card with drag & 3-dots menu
+  // Wrap a card with drag & 3-dots menu & share button
   function CardWrapper({ cardKey, children }) {
+    const [cardShared, setCardShared] = useState(false)
+    const wrapperRef = useRef(null)
     const isDragging = draggedCard === cardKey
     const isOver = dragOverCard === cardKey
     const overClass = isOver ? (dragOverSide === 'before' ? 'drag-over-before' : 'drag-over-after') : ''
+
+    function handleCardShare(e) {
+      e.stopPropagation()
+      const cardEl = wrapperRef.current?.querySelector('.card')
+      const text = `FundPro — ${cardEl?.innerText?.trim() || cardKey}`
+      navigator.clipboard.writeText(text)
+        .then(() => showToast('✓ Card data copied to clipboard'))
+        .catch(() => showToast('Could not copy — try again', 'error'))
+      setCardShared(true)
+      setTimeout(() => setCardShared(false), 2000)
+    }
+
     return (
       <div
+        ref={wrapperRef}
         className={`card-wrapper ${isDragging ? 'dragging' : ''} ${overClass}`}
         draggable
         onDragStart={() => handleDragStart(cardKey)}
@@ -194,6 +290,13 @@ function Dashboard() {
         onDragEnd={handleDragEnd}
       >
         <div className="card-menu-container">
+          <button
+            className={`card-share-btn ${cardShared ? 'shared' : ''}`}
+            onClick={handleCardShare}
+            title="Share card"
+          >
+            {cardShared ? <CheckIcon size={13} /> : <ShareIcon size={13} />}
+          </button>
           <button
             className="card-menu-btn"
             onClick={(e) => { e.stopPropagation(); setCardMenuOpen(cardMenuOpen === cardKey ? null : cardKey) }}
@@ -239,11 +342,9 @@ function Dashboard() {
   useEffect(() => {
     fetchData()
     getDashboardConfig().then(config => {
-      const raw = config[workspace]
-      if (!raw) { setVisibleCards(null); return }
-      // Support both old format (array) and new format ({ cards, custom })
-      const saved = Array.isArray(raw) ? raw : (raw.cards || [])
-      const custom = Array.isArray(raw) ? {} : (raw.custom || {})
+      const saved  = getCards(config, workspace)
+      const custom = getCustom(config, workspace)
+      if (!saved.length && !config[workspace]) { setVisibleCards(null); return }
       const systemCards = {
         office: ['totalBalance', 'thisMonthExpense', 'payable', 'cashOnHand', 'fridayBudget'],
         personal: ['totalBalance', 'thisMonthExpense', 'savingsFunds', 'receivables', 'creditCard'],
@@ -514,7 +615,7 @@ function Dashboard() {
               const net = fb.netBalance
               const isPositive = net >= 0
               return (
-                <div className="card clickable" onClick={() => setFridayHistoryOpen(true)}>
+                <div className="card clickable" onClick={() => { setFridayHistoryOpen(true); setFridayPos(null) }}>
                   <div className="card-header">
                     <span className={`card-icon ${c.color || 'orange'}`}>🍽️</span>
                     <span className="card-title">{c.title || 'Friday Lunch'}</span>
@@ -698,28 +799,7 @@ function Dashboard() {
           <button className="view-all-btn" onClick={() => navigate('transactions')}>View All →</button>
         </div>
         {data?.recentTransactions?.length > 0 ? (
-          <table className="transactions-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Via</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.recentTransactions.map((txn) => (
-                <tr key={txn.id}>
-                  <td className="date-cell">{formatDate(txn.date)}</td>
-                  <td className="desc-cell">{txn.description}</td>
-                  <td><span className="category-badge">{txn.category_name || 'Uncategorized'}</span></td>
-                  <td className="via-cell">{formatVia(txn.payment_method)}</td>
-                  <td className="amount-cell">{formatCurrency(txn.amount)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <RecentTransactionsTable transactions={data.recentTransactions} />
         ) : (
           <div className="no-data">No transactions yet</div>
         )}
@@ -787,11 +867,45 @@ function Dashboard() {
 
       {/* Friday Budget History Modal */}
       {fridayHistoryOpen && data?.fridayBudgetData && (
-        <div className="modal-overlay" onClick={() => setFridayHistoryOpen(false)}>
-          <div className="friday-history-modal" onClick={e => e.stopPropagation()}>
-            <div className="friday-modal-header">
+        <div className="modal-overlay friday-drag-overlay">
+          <div
+            className="friday-history-modal"
+            ref={fridayModalRef}
+            style={fridayPos ? { position: 'fixed', left: fridayPos.x, top: fridayPos.y, transform: 'none', margin: 0 } : {}}
+          >
+            <div
+              className="friday-modal-header"
+              onMouseDown={handleFridayHeaderMouseDown}
+              style={{ cursor: 'move' }}
+            >
               <span>🍽️ Friday Lunch — Month by Month</span>
-              <button className="friday-modal-close" onClick={() => setFridayHistoryOpen(false)}>✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <button
+                  className="friday-modal-close"
+                  onMouseDown={e => e.stopPropagation()}
+                  onClick={() => {
+                    const fb = data.fridayBudgetData
+                    const lines = [
+                      '🍽️ Friday Lunch Budget — FundPro',
+                      '─────────────────────────────────────────',
+                      `${'Month'.padEnd(12)}  ${'Fri'.padStart(3)}  ${'Budget'.padStart(10)}  ${'Spent'.padStart(10)}  ${'+/−'.padStart(10)}  ${'Balance'.padStart(10)}`,
+                      '─────────────────────────────────────────',
+                      ...(fb.monthHistory || []).map(r =>
+                        `${(r.month + (r.isCurrent ? ' ◀' : '')).padEnd(12)}  ${String(r.fridays).padStart(3)}  ${formatCurrency(r.budget).padStart(10)}  ${formatCurrency(r.spent).padStart(10)}  ${((r.surplus >= 0 ? '+' : '') + formatCurrency(r.surplus)).padStart(10)}  ${((r.cumulative >= 0 ? '+' : '') + formatCurrency(r.cumulative)).padStart(10)}`
+                      ),
+                      '─────────────────────────────────────────',
+                      `Net Balance: ${fb.netBalance >= 0 ? '+' : ''}${formatCurrency(fb.netBalance)}`,
+                    ]
+                    navigator.clipboard.writeText(lines.join('\n'))
+                      .then(() => showToast('✓ Friday budget history copied'))
+                      .catch(() => showToast('Could not copy — try again', 'error'))
+                  }}
+                  title="Copy to clipboard"
+                >
+                  <ShareIcon size={13} />
+                </button>
+                <button className="friday-modal-close" onMouseDown={e => e.stopPropagation()} onClick={() => { setFridayHistoryOpen(false); setFridayPos(null) }}>✕</button>
+              </div>
             </div>
             <div className="friday-modal-body">
               <table className="friday-history-table">

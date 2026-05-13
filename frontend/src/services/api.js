@@ -306,6 +306,15 @@ export async function getFundReallocations(fundId) {
 }
 
 // ============================================
+// REPORTS
+// ============================================
+
+export async function getReport(params) {
+  const qs = new URLSearchParams(params)
+  return fetchAPI(`/reports?${qs}`)
+}
+
+// ============================================
 // WORKSPACES
 // ============================================
 

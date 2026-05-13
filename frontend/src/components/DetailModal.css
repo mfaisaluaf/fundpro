@@ -4,23 +4,27 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  pointer-events: none;
 }
 
 .detail-modal-content {
   background: white;
   border-radius: 12px;
-  width: 100%;
-  max-width: 700px;
+  width: 700px;
+  max-width: 95vw;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  pointer-events: all;
+  user-select: none;
+  position: relative;
 }
 
 .detail-modal-header {
@@ -29,6 +33,13 @@
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
+  cursor: move;
+  border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
+}
+
+.detail-modal-header:active {
+  cursor: grabbing;
 }
 
 .detail-modal-title {
@@ -48,6 +59,38 @@
   color: #1f2937;
 }
 
+/* Header action buttons (share + download + close) */
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-action-btn {
+  background: #f3f4f6;
+  border: none;
+  font-size: 1rem;
+  color: #6b7280;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.detail-action-btn:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.detail-action-btn.done {
+  background: #d1fae5;
+  color: #059669;
+}
+
 .detail-close-btn {
   background: none;
   border: none;
@@ -56,10 +99,17 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
 }
 
 .detail-close-btn:hover {
-  color: #1f2937;
+  background: #fee2e2;
+  color: #ef4444;
 }
 
 .detail-total {
@@ -69,6 +119,7 @@
   padding: 1rem 1.5rem;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
 .detail-total span {
@@ -113,6 +164,10 @@
   border-bottom: none;
 }
 
+.detail-table tr:hover td {
+  background: #f9fafb;
+}
+
 .detail-table .date-cell {
   white-space: nowrap;
   color: #6b7280;
@@ -135,8 +190,85 @@
   white-space: nowrap;
 }
 
+.detail-table .share-cell {
+  width: 36px;
+  text-align: center;
+}
+
+/* Per-transaction share button */
+.txn-share-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.detail-table tr:hover .txn-share-btn {
+  opacity: 1;
+}
+
+.txn-share-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.txn-share-btn.done {
+  opacity: 1;
+  background: #d1fae5;
+  color: #059669;
+}
+
 .no-transactions {
   text-align: center;
   padding: 2rem;
   color: #9ca3af;
+}
+
+/* Resize handles — all 4 corners */
+.detail-resize-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 20;
+}
+
+.detail-resize-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  border-radius: 0 0 12px 0;
+  background: linear-gradient(135deg, transparent 45%, #d1d5db 45%, #d1d5db 55%, transparent 55%, transparent 68%, #d1d5db 68%, #d1d5db 78%, transparent 78%);
+}
+
+.detail-resize-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  border-radius: 0 0 0 12px;
+  background: linear-gradient(225deg, transparent 45%, #d1d5db 45%, #d1d5db 55%, transparent 55%, transparent 68%, #d1d5db 68%, #d1d5db 78%, transparent 78%);
+}
+
+.detail-resize-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  border-radius: 0 12px 0 0;
+  background: linear-gradient(45deg, transparent 45%, #d1d5db 45%, #d1d5db 55%, transparent 55%, transparent 68%, #d1d5db 68%, #d1d5db 78%, transparent 78%);
+}
+
+.detail-resize-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  border-radius: 12px 0 0 0;
+  background: linear-gradient(315deg, transparent 45%, #d1d5db 45%, #d1d5db 55%, transparent 55%, transparent 68%, #d1d5db 68%, #d1d5db 78%, transparent 78%);
 }

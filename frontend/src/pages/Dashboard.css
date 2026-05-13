@@ -335,12 +335,48 @@
   cursor: grabbing;
 }
 
-/* 3-dots menu */
+/* 3-dots menu + share button */
 .card-menu-container {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.card-share-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  opacity: 0;
+}
+
+.card-wrapper:hover .card-share-btn {
+  opacity: 1;
+}
+
+.card-share-btn:hover {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.card-share-btn.shared {
+  opacity: 1;
+  background: #d1fae5;
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .card-menu-btn {
@@ -684,6 +720,42 @@
   border-bottom: none;
 }
 
+.transactions-table .share-cell {
+  width: 36px;
+  padding: 0;
+  text-align: center;
+}
+
+.transactions-table .txn-share-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.transactions-table tbody tr:hover .txn-share-btn {
+  opacity: 1;
+}
+
+.transactions-table .txn-share-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.transactions-table .txn-share-btn.done {
+  opacity: 1;
+  background: #d1fae5;
+  color: #059669;
+}
+
 .date-cell {
   color: #64748b;
   font-size: 0.85rem;
@@ -805,6 +877,15 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+.friday-drag-overlay {
+  pointer-events: none;
+}
+
+.friday-drag-overlay .friday-history-modal {
+  pointer-events: all;
+  user-select: none;
 }
 
 .friday-history-modal {

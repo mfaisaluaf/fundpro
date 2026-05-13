@@ -230,6 +230,9 @@ All conversations are saved in `sessions/` folder. Read them for full history:
 | [sessions/session-2026-02-19.md](sessions/session-2026-02-19.md) | 2026-02-19 | Reconnected after lost session. Built allowed_types system recap. Created CLAUDE.md + session logs. |
 | [sessions/session-2026-02-27.md](sessions/session-2026-02-27.md) | 2026-02-27 | Bug fixes: phantom Bank balance, stale fundsLocations, Loan Given in Income, workspace persistence. Features: modal draggable, no outside-click close, Via column, Fund Transfer Cash/Bank selector, Salary vs Savings separation (is_primary). Renamed app to FundPro. |
 | [sessions/session-2026-03-11.md](sessions/session-2026-03-11.md) | 2026-03-11 | Balance reconciliation (Rs 90k ATM fix). Friday Lunch Budget card with carry-forward. Month-by-month history modal. Fixed charts (real 6-month data). Card UX improvements. |
+| [sessions/session-2026-03-18.md](sessions/session-2026-03-18.md) | 2026-03-18 | DetailModal draggable+resizable. Share/clipboard on all cards and transactions. toast.js, icons.jsx, dashboardConfig.js utilities. Admin Settings bug fix. PWA setup (manifest, SW, icons). Hamburger menu for mobile. |
+| [sessions/session-2026-04-04.md](sessions/session-2026-04-04.md) | 2026-04-04 | TechyNex only. History partner modal fix. April 2024 reconciliation — Faisal Rs 41,611 + Umair Rs 177,533 owner cuts settled. Pay Now bug fixed. RE balance mismatch fixed. Dashboard partner modal paid-txn bleed fixed. |
+| [sessions/session-2026-04-05.md](sessions/session-2026-04-05.md) | 2026-04-05 | TechyNex only. Total Paid Out logic fixed (use partner total_earned not raw withdrawals). Dashboard card breakdowns removed. RE table added to dashboard for queued payouts. Total Earnings shows 0 when last month settled. |
 
 > Every new session: Claude must AUTOMATICALLY save conversation to `sessions/session-YYYY-MM-DD.md` without waiting for user to ask.
 
@@ -274,10 +277,11 @@ All conversations are saved in `sessions/` folder. Read them for full history:
 ## Current Status / Next Tasks
 
 - [ ] Find and fix Rs 60 expense discrepancy (one cash expense is Rs 60 higher than actual receipt)
+- [ ] Fix October 2025 Friday Lunch Rs 100 discrepancy (one transaction Rs 100 short — user needs to identify and edit)
 - [ ] Test allowed_types filtering end-to-end
 - [ ] Check if Reports, Investments, Receivables, GroupExpenses pages are fully implemented or need work
 
-**Last session: 2026-03-11** — Friday Lunch Budget card + history modal built. Charts fixed to show real 6-month data. Balance reconciliation completed. See sessions/session-2026-03-11.md for full details.
+**Last session: 2026-04-05** — TechyNex session. 4 fixes: (1) Total Paid Out mismatch — now uses sum of partner total_earned (not raw withdrawals) with Math.round to prevent ±1 gap. (2) Dashboard top cards: removed source breakdowns, Added for Payout uses same partner total_earned logic. (3) RE table added to Dashboard for queued payouts (same as payout history). (4) Total Earnings card shows 0 when mode=last_month (settled, awaiting new income). See sessions/session-2026-04-05.md.
 
 ---
 

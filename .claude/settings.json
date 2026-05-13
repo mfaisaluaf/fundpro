@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(wc -l d:/claude-work/techynex/backend/server.js d:/claude-work/techynex/frontend/src/pages/*.jsx d:/claude-work/techynex/frontend/src/pages/*.css)",
+      "Read(//d/claude-work/techynex/frontend/src/layouts/**)",
+      "Read(//d/claude-work/techynex/frontend/src/services/**)",
+      "Bash(node migrate-v13.js)",
+      "Bash(node -e \"require\\('./server.js'\\)\")",
+      "Bash(kill %1)",
+      "Read(//d/claude-work/techynex/frontend/**)"
+    ],
+    "additionalDirectories": [
+      "d:\\claude-work\\techynex\\frontend\\src\\services"
+    ]
+  }
+}

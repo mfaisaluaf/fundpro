@@ -4,6 +4,9 @@ import { getTransactions, deleteTransaction } from '../services/api'
 import AddTransactionModal from '../components/AddTransactionModal'
 import EditTransactionModal from '../components/EditTransactionModal'
 import PasswordConfirmModal from '../components/PasswordConfirmModal'
+import { buildReceiptText } from '../components/DetailModal'
+import { ShareIcon, CheckIcon } from '../components/icons'
+import { showToast } from '../components/toast'
 import './Transactions.css'
 
 // Format currency
@@ -30,6 +33,7 @@ function Transactions() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState(null)
+  const [sharedTxn, setSharedTxn] = useState(null)
 
   // Fetch transactions when workspace changes
   async function fetchTransactions() {
@@ -76,6 +80,16 @@ function Transactions() {
   const handleSuccess = () => {
     setShowModal(false)
     fetchTransactions()
+  }
+
+  // Handle share click
+  const handleShareClick = (txn) => {
+    const text = buildReceiptText(txn)
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('✓ Receipt copied to clipboard'))
+      .catch(() => showToast('Could not copy — try again', 'error'))
+    setSharedTxn(txn.id)
+    setTimeout(() => setSharedTxn(null), 2000)
   }
 
   // Handle edit click
@@ -182,8 +196,8 @@ function Transactions() {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Description</th>
                 <th>Category</th>
+                <th>Description</th>
                 <th>Payment Method</th>
                 <th>Amount</th>
                 <th>Type</th>
@@ -194,10 +208,10 @@ function Transactions() {
               {paginatedTransactions.map((txn) => (
                 <tr key={txn.id}>
                   <td className="date-cell">{formatDate(txn.date)}</td>
-                  <td className="desc-cell">{txn.description}</td>
                   <td>
                     <span className="category-badge">{txn.category_name || 'Uncategorized'}</span>
                   </td>
+                  <td className="desc-cell">{txn.description}</td>
                   <td className="fund-cell">{txn.payment_method || '—'}</td>
                   <td className={`amount-cell ${txn.type}`}>
                     {txn.type === 'income' ? '+' : '-'} {formatCurrency(txn.amount)}
@@ -208,6 +222,13 @@ function Transactions() {
                     </span>
                   </td>
                   <td className="actions-cell">
+                    <button
+                      className={`action-btn share-btn ${sharedTxn === txn.id ? 'shared' : ''}`}
+                      onClick={() => handleShareClick(txn)}
+                      title="Share receipt"
+                    >
+                      {sharedTxn === txn.id ? <CheckIcon size={13} /> : <ShareIcon size={13} />}
+                    </button>
                     <button
                       className="action-btn edit-btn"
                       onClick={() => handleEditClick(txn)}

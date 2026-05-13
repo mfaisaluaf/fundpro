@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getSettings } from '../services/api'
 import './MainLayout.css'
 
@@ -84,6 +84,8 @@ function MainLayout() {
     return localStorage.getItem('activeWorkspace') || 'office'
   })
   const [showSettings, setShowSettings] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const settingsRef = useRef(null)
   const [profileName, setProfileName] = useState('Faisal')
   const [avatarColor, setAvatarColor] = useState('#10B981')
   const [appName, setAppName] = useState('FundPro')
@@ -133,6 +135,18 @@ function MainLayout() {
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
+  // Close settings dropdown on outside click
+  useEffect(() => {
+    if (!showSettings) return
+    function handleClick(e) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setShowSettings(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showSettings])
+
   // Toggle workspace visibility
   const toggleWorkspace = (workspace) => {
     // Ensure at least one workspace remains visible
@@ -147,11 +161,17 @@ function MainLayout() {
 
   return (
     <div className="app-container">
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <nav className="sidebar">
+      <nav className={`sidebar${sidebarOpen ? ' sidebar-mobile-open' : ''}`}>
         <div className="logo">
           <div className="logo-icon">{appName.charAt(0)}</div>
           <span className="logo-text">{appName}</span>
+          <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} title="Close menu">✕</button>
         </div>
 
         {/* Dynamic Navigation based on Workspace */}
@@ -161,7 +181,7 @@ function MainLayout() {
             <ul className="nav-menu">
               {section.items.map((item, itemIndex) => (
                 <li key={itemIndex}>
-                  <NavLink to={item.to} className="nav-item">
+                  <NavLink to={item.to} className="nav-item" onClick={() => setSidebarOpen(false)}>
                     <span className="nav-icon">{item.icon}</span>
                     <span className="nav-label">{item.label}</span>
                   </NavLink>
@@ -177,6 +197,9 @@ function MainLayout() {
         {/* Top Header */}
         <header className="top-header">
           <div className="header-left">
+            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)} title="Open menu">
+              <span /><span /><span />
+            </button>
             <div className="workspace-selector">
               {visibleWorkspaces.office && (
                 <button
@@ -204,7 +227,7 @@ function MainLayout() {
               )}
 
               {/* Settings Toggle */}
-              <div className="workspace-settings">
+              <div className="workspace-settings" ref={settingsRef}>
                 <button
                   className="settings-toggle"
                   onClick={() => setShowSettings(!showSettings)}

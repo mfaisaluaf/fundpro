@@ -407,6 +407,24 @@
   background: #f1f5f9;
 }
 
+.action-btn.share-btn {
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.share-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.action-btn.share-btn.shared {
+  opacity: 1;
+  background: #d1fae5;
+  color: #059669;
+}
+
 .action-btn.edit-btn:hover {
   background: #eff6ff;
 }

@@ -532,7 +532,7 @@ app.get('/api/dashboard/:workspace', (req, res) => {
 
 // Get all transactions (with filters)
 app.get('/api/transactions', (req, res) => {
-  const { workspace, type, category, limit = 50, offset = 0 } = req.query
+  const { workspace, type, category, date_from, date_to, person_id, limit = 50, offset = 0 } = req.query
 
   try {
     let query = `
@@ -555,6 +555,18 @@ app.get('/api/transactions', (req, res) => {
     if (category) {
       query += ' AND t.category_id = ?'
       params.push(category)
+    }
+    if (date_from) {
+      query += ' AND t.date >= ?'
+      params.push(date_from)
+    }
+    if (date_to) {
+      query += ' AND t.date <= ?'
+      params.push(date_to)
+    }
+    if (person_id) {
+      query += ' AND t.person_id = ?'
+      params.push(person_id)
     }
 
     query += ' ORDER BY t.date DESC, t.id DESC LIMIT ? OFFSET ?'
@@ -1523,6 +1535,181 @@ app.get('/api/workspaces', (req, res) => {
     res.json(workspaces)
   } catch (error) {
     res.status(500).json({ error: error.message })
+  }
+})
+
+// ============================================
+// REPORTS API
+// ============================================
+
+app.get('/api/reports', (req, res) => {
+  const { type, workspace, date_from, date_to, compare_from, compare_to } = req.query
+  const workspaceId = getWorkspaceId(workspace || 'office')
+  const from = date_from || '2000-01-01'
+  const to   = date_to   || '2099-12-31'
+
+  try {
+    // ── Monthly Summary ──────────────────────────────────────────
+    if (type === 'monthly-summary') {
+      const totals = db.prepare(`
+        SELECT
+          COALESCE(SUM(CASE WHEN type='income'     THEN amount ELSE 0 END), 0) as income,
+          COALESCE(SUM(CASE WHEN type='expense'    THEN amount ELSE 0 END), 0) as expense,
+          COALESCE(SUM(CASE WHEN type='settlement' THEN amount ELSE 0 END), 0) as settlement
+        FROM transactions
+        WHERE workspace_id = ? AND date >= ? AND date <= ?
+      `).get(workspaceId, from, to)
+
+      const byMethod = db.prepare(`
+        SELECT payment_method,
+          COALESCE(SUM(CASE WHEN type='income'  THEN amount ELSE 0 END), 0) as income,
+          COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END), 0) as expense
+        FROM transactions
+        WHERE workspace_id = ? AND date >= ? AND date <= ?
+          AND type IN ('income','expense') AND payment_method IS NOT NULL
+        GROUP BY payment_method
+        ORDER BY (COALESCE(SUM(CASE WHEN type='income' THEN amount ELSE 0 END),0)
+                + COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END),0)) DESC
+      `).all(workspaceId, from, to)
+
+      const byCategory = db.prepare(`
+        SELECT
+          COALESCE(cp.name, c.name) as category,
+          COALESCE(SUM(CASE WHEN t.type='income'  THEN t.amount ELSE 0 END), 0) as income,
+          COALESCE(SUM(CASE WHEN t.type='expense' THEN t.amount ELSE 0 END), 0) as expense
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        LEFT JOIN categories cp ON c.parent_id = cp.id
+        WHERE t.workspace_id = ? AND t.date >= ? AND t.date <= ?
+          AND t.type IN ('income','expense')
+        GROUP BY COALESCE(c.parent_id, c.id)
+        ORDER BY expense DESC
+      `).all(workspaceId, from, to)
+
+      const monthly = db.prepare(`
+        SELECT strftime('%Y-%m', date) as month,
+          COALESCE(SUM(CASE WHEN type='income'  THEN amount ELSE 0 END), 0) as income,
+          COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END), 0) as expense
+        FROM transactions
+        WHERE workspace_id = ? AND date >= ? AND date <= ?
+          AND type IN ('income','expense')
+        GROUP BY month ORDER BY month
+      `).all(workspaceId, from, to)
+
+      return res.json({ totals, byMethod, byCategory, monthly, dateRange: { from, to } })
+
+    // ── Category Breakdown ───────────────────────────────────────
+    } else if (type === 'category-breakdown') {
+      const rows = db.prepare(`
+        SELECT
+          COALESCE(cp.name, c.name) as category,
+          COUNT(t.id) as txn_count,
+          COALESCE(SUM(t.amount), 0) as total
+        FROM transactions t
+        JOIN categories c ON t.category_id = c.id
+        LEFT JOIN categories cp ON c.parent_id = cp.id
+        WHERE t.workspace_id = ? AND t.date >= ? AND t.date <= ?
+          AND t.type = 'expense'
+        GROUP BY COALESCE(c.parent_id, c.id)
+        ORDER BY total DESC
+      `).all(workspaceId, from, to)
+
+      const totalExpense = rows.reduce((s, r) => s + r.total, 0)
+      const categories = rows.map(r => ({
+        ...r,
+        pct: totalExpense > 0 ? Math.round(r.total / totalExpense * 100) : 0
+      }))
+      return res.json({ categories, totalExpense, dateRange: { from, to } })
+
+    // ── Period Comparison ────────────────────────────────────────
+    } else if (type === 'period-comparison') {
+      const fromB = compare_from || from
+      const toB   = compare_to   || to
+
+      function getPeriodData(f, t) {
+        const totals = db.prepare(`
+          SELECT
+            COALESCE(SUM(CASE WHEN type='income'  THEN amount ELSE 0 END), 0) as income,
+            COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END), 0) as expense
+          FROM transactions
+          WHERE workspace_id = ? AND date >= ? AND date <= ?
+        `).get(workspaceId, f, t)
+
+        const byCategory = db.prepare(`
+          SELECT
+            COALESCE(cp.name, c.name) as category,
+            COALESCE(SUM(CASE WHEN t.type='income'  THEN t.amount ELSE 0 END), 0) as income,
+            COALESCE(SUM(CASE WHEN t.type='expense' THEN t.amount ELSE 0 END), 0) as expense
+          FROM transactions t
+          JOIN categories c ON t.category_id = c.id
+          LEFT JOIN categories cp ON c.parent_id = cp.id
+          WHERE t.workspace_id = ? AND t.date >= ? AND t.date <= ?
+            AND t.type IN ('income','expense')
+          GROUP BY COALESCE(c.parent_id, c.id)
+          ORDER BY expense DESC
+        `).all(workspaceId, f, t)
+
+        return { from: f, to: t, totals, byCategory }
+      }
+
+      return res.json({ periodA: getPeriodData(from, to), periodB: getPeriodData(fromB, toB) })
+
+    // ── Payable Aging ────────────────────────────────────────────
+    } else if (type === 'payable-aging') {
+      const rows = db.prepare(`
+        SELECT
+          COALESCE(p.name, 'Unknown') as person_name,
+          COALESCE(SUM(CASE WHEN t.type='expense' AND t.payment_method='Payable' THEN t.amount ELSE 0 END), 0) as total_payable,
+          COALESCE(SUM(CASE WHEN t.type='settlement' THEN t.amount ELSE 0 END), 0) as total_settled,
+          MIN(CASE WHEN t.type='expense' AND t.payment_method='Payable' THEN t.date END) as oldest_date,
+          COUNT(CASE WHEN t.type='expense' AND t.payment_method='Payable' THEN 1 END) as txn_count
+        FROM transactions t
+        LEFT JOIN people p ON t.person_id = p.id
+        WHERE t.workspace_id = ?
+          AND ((t.type = 'expense' AND t.payment_method = 'Payable') OR t.type = 'settlement')
+        GROUP BY t.person_id
+      `).all(workspaceId)
+
+      const today = new Date().toISOString().slice(0, 10)
+      const people = rows
+        .map(p => ({
+          ...p,
+          outstanding: p.total_payable - p.total_settled,
+          days: p.oldest_date
+            ? Math.floor((new Date(today) - new Date(p.oldest_date)) / 86400000)
+            : 0
+        }))
+        .filter(p => p.outstanding > 0)
+        .sort((a, b) => b.outstanding - a.outstanding)
+
+      const totalOutstanding = people.reduce((s, p) => s + p.outstanding, 0)
+      return res.json({ people, totalOutstanding })
+
+    // ── Person Summary ───────────────────────────────────────────
+    } else if (type === 'person-summary') {
+      const people = db.prepare(`
+        SELECT
+          COALESCE(p.name, 'Unknown') as person_name,
+          COUNT(t.id) as txn_count,
+          COALESCE(SUM(CASE WHEN t.type='expense' AND t.payment_method='Payable'     THEN t.amount ELSE 0 END), 0) as payable,
+          COALESCE(SUM(CASE WHEN t.type='settlement'                                  THEN t.amount ELSE 0 END), 0) as settled,
+          COALESCE(SUM(CASE WHEN t.payment_method='Receivable'                        THEN t.amount ELSE 0 END), 0) as receivable,
+          COALESCE(SUM(t.amount), 0) as total
+        FROM transactions t
+        LEFT JOIN people p ON t.person_id = p.id
+        WHERE t.workspace_id = ? AND t.date >= ? AND t.date <= ?
+          AND t.person_id IS NOT NULL
+        GROUP BY t.person_id
+        ORDER BY total DESC
+      `).all(workspaceId, from, to)
+
+      return res.json({ people, dateRange: { from, to } })
+
+    } else {
+      return res.status(400).json({ error: `Unknown report type: ${type}` })
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message })
   }
 })
 
